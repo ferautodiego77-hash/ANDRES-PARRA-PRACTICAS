@@ -1,0 +1,102 @@
+from machine import I2C, Pin
+from time import sleep
+from i2c_lcd import I2cLcd
+import random
+
+i2c = I2C(0, scl=Pin(22), sda=Pin(21), freq=400000)
+lcd = I2cLcd(0x27, 2, 16)
+
+btn_jump = Pin(18, Pin.IN, Pin.PULL_UP)
+
+dino = [
+0b00000,
+0b00000,
+0b00000,
+0b11111,
+0b10101,
+0b11111,
+0b10001,
+0b11111
+]
+
+cactus = [
+0b01110,
+0b11111,
+0b10101,
+0b10101,
+0b01010,
+0b01110,
+0b00000,
+0b01110
+]
+
+lcd.custom_char(0, dino)
+lcd.custom_char(1, cactus)
+
+def juego():
+fila = 1
+cactus_pos = 14
+puntaje = 0
+
+velocidad_inicial = 0.2
+min_velocidad = 0.05
+velocidad = velocidad_inicial
+
+salto_tiempo = 0
+game_over = False
+
+while not game_over:
+    lcd.clear()
+
+    
+    if btn_jump.value() == 0:
+        fila = 0
+        salto_tiempo = 3
+
+    if salto_tiempo > 0:
+        salto_tiempo -= 1
+    else:
+        fila = 1
+
+    
+    lcd.move_to(0, fila)
+    lcd.putchar(chr(0))
+
+    
+    if 0 <= cactus_pos < 16:
+        lcd.move_to(cactus_pos, 1)
+        lcd.putchar(chr(1))
+
+    
+    if cactus_pos == 0 and fila == 1:
+        game_over = True
+
+    
+    cactus_pos -= 1
+
+    if cactus_pos < 0:
+        cactus_pos = random.randint(16, 20)
+        puntaje += 1
+
+    
+    velocidad = velocidad_inicial - (puntaje * 0.003)
+
+    
+    if velocidad < min_velocidad:
+        velocidad = min_velocidad
+
+    
+    lcd.move_to(10, 0)
+    lcd.putstr("P:{:<5}".format(puntaje))
+
+    sleep(velocidad)
+
+
+lcd.clear()
+lcd.move_to(0, 0)
+lcd.putstr(" GAME OVER ")
+lcd.move_to(0, 1)
+lcd.putstr("Puntos:" + str(puntaje))
+sleep(3)
+mientras sea verdadero:
+juego()
