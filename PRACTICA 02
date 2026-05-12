@@ -1,0 +1,21 @@
+from machine import Pin, I2C
+from i2c_lcd import I2cLcd
+from time import sleep
+i2c = I2C(0, scl=Pin(22), sda=Pin(21), freq=400000)
+lcd = LCD_I2C(addr=0x27, cols=16, rows=2)
+lcd.backlight(True)
+while True:
+# Mostrar mensaje
+lcd.clear()
+lcd.set_cursor(0, 0)
+lcd.print("CALDERON")
+lcd.set_cursor(0, 1)
+lcd.print("ANDRES")
+time.sleep(2)
+
+# Desplazar pantalla a la izquierda 16 veces
+for i in range(16):
+    lcd.scroll_left()
+    time.sleep_ms(300)
+
+time.sleep(1)
